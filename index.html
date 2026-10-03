@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Browser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        
+        <div class="tabbar" id="tabbar">
+            <div class="tabs" id="tabs"></div>
+            <button class="new-tab-btn" id="newTabBtn" title="Новая вкладка">+</button>
+            <div class="window-controls" aria-label="Управление окном">
+                <button class="window-control" id="minimizeWindowBtn" title="Свернуть" aria-label="Свернуть">
+                    <span class="material-icons-round">remove</span>
+                </button>
+                <button class="window-control" id="maximizeWindowBtn" title="Развернуть" aria-label="Развернуть">
+                    <span class="material-icons-round">crop_square</span>
+                </button>
+                <button class="window-control close" id="closeWindowBtn" title="Закрыть" aria-label="Закрыть">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+        </div>
+
+        
+        <div class="toolbar">
+            <div class="nav-buttons">
+                <button class="nav-btn" id="backBtn" title="Назад" disabled>
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+                <button class="nav-btn" id="forwardBtn" title="Вперёд" disabled>
+                    <span class="material-icons-round">arrow_forward</span>
+                </button>
+                <button class="nav-btn" id="reloadBtn" title="Обновить">
+                    <span class="material-icons-round">refresh</span>
+                </button>
+                <button class="nav-btn" id="homeBtn" title="Домой">
+                    <span class="material-icons-round">home</span>
+                </button>
+            </div>
+
+            <form class="address-bar" id="addressForm">
+                <div class="address-icon" id="addressIcon">
+                    <span class="material-icons-round">search</span>
+                </div>
+                <input type="text" id="addressInput" placeholder="Поиск в DuckDuckGo или введите адрес" autocomplete="off" spellcheck="false">
+                <button type="button" class="nav-btn bookmark-star" id="bookmarkBtn" title="Добавить в закладки" disabled>
+                    <span class="material-icons-round" id="bookmarkBtnIcon">star_border</span>
+                </button>
+                <button type="button" class="go-btn" id="goBtn" title="Перейти">
+                    <span class="material-icons-round">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="toolbar-right">
+                <button class="nav-btn" id="downloadsBtn" title="Загрузки" aria-label="Загрузки" aria-expanded="false">
+                    <span class="material-icons-round">file_download</span>
+                </button>
+                <button class="nav-btn" id="settingsBtn" title="Настройки">
+                    <span class="material-icons-round">settings</span>
+                </button>
+                <button class="profile-btn ripple" id="profileBtn" title="Профили">P</button>
+            </div>
+        </div>
+
+        <aside class="downloads-panel" id="downloadsPanel" aria-label="Загрузки" hidden>
+            <div class="downloads-panel-header">
+                <strong>Загрузки</strong>
+                <button class="nav-btn" id="closeDownloadsBtn" type="button" title="Закрыть" aria-label="Закрыть загрузки"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="downloads-list" id="downloadsList"></div>
+        </aside>
+
+        
+        <div class="content" id="content">
+            
+            <div class="home-page" id="homePage">
+                
+                <canvas class="waves-canvas" id="wavesCanvas"></canvas>
+                <div class="home-inner">
+                    <div class="logo">
+                        <canvas class="dotted-logo" id="dottedLogo" role="img" aria-label="Swift Browser"></canvas>
+                    </div>
+                    <p class="tagline">Быстро. Красиво. Приватно.</p>
+
+                    <form class="home-search" id="homeSearchForm">
+                        <span class="material-icons-round home-search-icon">search</span>
+                        <input type="text" id="homeSearchInput" placeholder="Поиск в DuckDuckGo" autocomplete="off" autofocus>
+                        <button type="submit">Искать</button>
+                    </form>
+
+                    <label class="home-incognito" id="homeIncognitoToggle" title="Временная сессия без истории и cookies">
+                        <span class="material-icons-round">visibility_off</span>
+                        <span class="home-incognito-text">Инкогнито</span>
+                        <input type="checkbox" id="incognitoSwitch" class="switch" aria-label="Режим инкогнито">
+                    </label>
+
+                    <div class="shortcuts" id="shortcuts"></div>
+                </div>
+            </div>
+
+            
+            <div id="webviewHost" class="webview-host"></div>
+
+            
+            <div class="loadbar" id="loadbar"></div>
+
+        
+        <div class="settings-page" id="settingsPage" aria-hidden="true">
+            
+            <nav class="settings-nav" id="settingsNav">
+                <div class="settings-nav-brand">
+                    <span class="material-icons-round">settings</span>
+                    <span>Настройки</span>
+                </div>
+                
+                <div class="settings-nav-profile" id="settingsProfileBtn">
+                    <div class="profile-avatar" id="settingsProfileAvatar" style="background:#ff6a3d">P</div>
+                    <span class="profile-name" id="settingsProfileName">Профиль</span>
+                    <span class="material-icons-round">expand_more</span>
+                </div>
+                <button class="settings-nav-item active" data-pane="general">
+                    <span class="material-icons-round">tune</span>
+                    <span>Основные</span>
+                </button>
+                <button class="settings-nav-item" data-pane="search">
+                    <span class="material-icons-round">search</span>
+                    <span>Поиск</span>
+                </button>
+                <button class="settings-nav-item" data-pane="appearance">
+                    <span class="material-icons-round">palette</span>
+                    <span>Внешний вид</span>
+                </button>
+                <button class="settings-nav-item" data-pane="privacy">
+                    <span class="material-icons-round">shield</span>
+                    <span>Приватность и защита</span>
+                </button>
+                <button class="settings-nav-item" data-pane="history">
+                    <span class="material-icons-round">history</span>
+                    <span>История</span>
+                </button>
+                <button class="settings-nav-item" data-pane="bookmarks">
+                    <span class="material-icons-round">bookmarks</span>
+                    <span>Закладки</span>
+                </button>
+                <button class="settings-nav-item" data-pane="passwords">
+                    <span class="material-icons-round">key</span>
+                    <span>Пароли</span>
+                </button>
+                <button class="settings-nav-item" data-pane="profiles">
+                    <span class="material-icons-round">manage_accounts</span>
+                    <span>Профили</span>
+                </button>
+                <button class="settings-nav-item" data-pane="extensions">
+                    <span class="material-icons-round">extension</span>
+                    <span>Расширения</span>
+                </button>
+            </nav>
+
+            
+            <div class="settings-content" id="settingsContent">
+                <div class="settings-topbar">
+                    <button class="settings-back" id="settingsClose" title="Назад к браузеру">
+                        <span class="material-icons-round">arrow_back</span>
+                        <span>Назад</span>
+                    </button>
+                    <div class="settings-search-wrap">
+                        <span class="material-icons-round">search</span>
+                        <input type="text" id="settingsSearch" placeholder="Найти в настройках" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="settings-scroll" id="settingsScroll">
+
+                    
+                    <section class="settings-pane" id="pane-general">
+                        <h1 class="settings-pane-title">Основные</h1>
+
+                        <div class="settings-card">
+                            <h3>Стартовая страница</h3>
+                            <p class="settings-hint">Что показывать на новой вкладке.</p>
+                            <label class="settings-row">
+                                <span>Показывать подзаголовок</span>
+                                <input type="checkbox" id="toggleTagline" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Показывать плитки быстрого доступа</span>
+                                <input type="checkbox" id="toggleShortcuts" class="switch" checked>
+                            </label>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Правовые документы</h3>
+                            <p class="settings-hint">Пользовательское соглашение, политика конфиденциальности и EULA.</p>
+                            <div class="btn-row">
+                                <button type="button" class="settings-action" data-legal="terms">Пользовательское соглашение</button>
+                                <button type="button" class="settings-action" data-legal="privacy">Конфиденциальность</button>
+                                <button type="button" class="settings-action" data-legal="eula">EULA</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-search">
+                        <h1 class="settings-pane-title">Поиск</h1>
+
+                        <div class="settings-card">
+                            <h3>Поисковая система по умолчанию</h3>
+                            <p class="settings-hint">Используется в адресной строке и на стартовой странице.</p>
+                            <select class="settings-select" id="searchEngineSelect"></select>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-appearance">
+                        <h1 class="settings-pane-title">Внешний вид</h1>
+
+                        <div class="settings-card">
+                            <h3>Тема оформления</h3>
+                            <div class="theme-toggle" id="themeToggle">
+                                <button data-theme="dark" class="active">Тёмная</button>
+                                <button data-theme="light">Светлая</button>
+                            </div>
+                            <label class="settings-row" style="margin-top:12px">
+                                <span>Тёмная тема на всех сайтах</span>
+                                <input type="checkbox" id="toggleDarkSites" class="switch" checked>
+                            </label>
+                            <p class="settings-hint" style="margin-top:4px;margin-bottom:0">Инвертирует цвета сайтов при тёмной теме браузера. Изображения и видео остаются без изменений.</p>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Акцентный цвет</h3>
+                            <p class="settings-hint">Выберите фирменный цвет интерфейса.</p>
+                            <div class="accent-grid" id="accentGrid"></div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Динамические волны</h3>
+                            <p class="settings-hint">Анимированный фон на стартовой странице.</p>
+                            <label class="settings-row">
+                                <span>Показывать волны</span>
+                                <input type="checkbox" id="toggleWaves" class="switch" checked>
+                            </label>
+                            <div class="waves-type" id="wavesType">
+                                <button data-waves="normal" class="active">Обычные волны</button>
+                                <button data-waves="stripes">Волны полосками</button>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Анимации интерфейса</h3>
+                            <p class="settings-hint">Плавные переходы вкладок, списков и панелей.</p>
+                            <label class="settings-row">
+                                <span>Включить анимации UI</span>
+                                <input type="checkbox" id="toggleUiAnim" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Уменьшить движение (доступность)</span>
+                                <input type="checkbox" id="toggleReduceMotion" class="switch">
+                            </label>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-privacy">
+                        <h1 class="settings-pane-title">Приватность и защита</h1>
+
+                        <div class="settings-card">
+                            <h3>Защита от отслеживания</h3>
+                            <p class="settings-hint">Блокировка известных трекеров и рекламных сетей на всех сайтах.</p>
+                            <label class="settings-row">
+                                <span>Блокировать трекеры и рекламу</span>
+                                <input type="checkbox" id="toggleBlockTrackers" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Блокировать виджеты соцсетей</span>
+                                <input type="checkbox" id="toggleBlockSocial" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Блокировать сторонние cookie</span>
+                                <input type="checkbox" id="toggleThirdPartyCookies" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Отправлять сигнал «Не отслеживать» (DNT / GPC)</span>
+                                <input type="checkbox" id="toggleDNT" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Не передавать Referer</span>
+                                <input type="checkbox" id="toggleStripReferrer" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Защита от fingerprinting</span>
+                                <input type="checkbox" id="toggleFingerprinting" class="switch" checked>
+                            </label>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Безопасность</h3>
+                            <p class="settings-hint">Управление соединениями и выполнением скриптов.</p>
+                            <label class="settings-row">
+                                <span>Только HTTPS-соединения</span>
+                                <input type="checkbox" id="toggleHttpsOnly" class="switch">
+                            </label>
+                            <label class="settings-row">
+                                <span>Выполнять JavaScript</span>
+                                <input type="checkbox" id="toggleJavaScript" class="switch" checked>
+                            </label>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Данные и сохранение</h3>
+                            <p class="settings-hint">Что браузер запоминает о вашем просмотре.</p>
+                            <label class="settings-row">
+                                <span>Сохранять историю</span>
+                                <input type="checkbox" id="toggleSaveHistory" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Предлагать сохранить пароли</span>
+                                <input type="checkbox" id="toggleSavePasswords" class="switch" checked>
+                            </label>
+                            <label class="settings-row">
+                                <span>Очищать данные при выходе</span>
+                                <input type="checkbox" id="toggleClearOnExit" class="switch">
+                            </label>
+                            <button class="settings-action" id="clearDataBtn">Очистить данные просмотра</button>
+                            <button class="settings-action" id="clearHistoryBtn" style="margin-top:8px">Очистить только историю</button>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Сброс</h3>
+                            <p class="settings-hint">Вернуть все настройки к значениям по умолчанию.</p>
+                            <button class="settings-action danger" id="resetSettingsBtn">Сбросить все настройки</button>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-history">
+                        <h1 class="settings-pane-title">История</h1>
+                        <div class="settings-card lib-toolbar-card">
+                            <div class="lib-toolbar">
+                                <div class="lib-search-wrap">
+                                    <span class="material-icons-round">search</span>
+                                    <input type="text" id="historySearch" placeholder="Поиск по истории" autocomplete="off">
+                                </div>
+                                <button class="settings-action" id="clearHistoryPaneBtn">Очистить</button>
+                            </div>
+                            <div class="lib-list" id="historyList"></div>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-bookmarks">
+                        <h1 class="settings-pane-title">Закладки</h1>
+                        <div class="settings-card lib-toolbar-card">
+                            <div class="lib-toolbar">
+                                <div class="lib-search-wrap">
+                                    <span class="material-icons-round">search</span>
+                                    <input type="text" id="bookmarksSearch" placeholder="Поиск закладок" autocomplete="off">
+                                </div>
+                                <button class="btn-primary ripple" id="addBookmarkBtn">
+                                    <span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span>
+                                    Добавить
+                                </button>
+                            </div>
+                            <div class="lib-list" id="bookmarksList"></div>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-passwords">
+                        <h1 class="settings-pane-title">Пароли</h1>
+                        <div class="settings-card">
+                            <h3>Сохранённые пароли</h3>
+                            <p class="settings-hint">Шифруются через системное хранилище (DPAPI / Keychain).</p>
+                            <div class="lib-toolbar">
+                                <div class="lib-search-wrap">
+                                    <span class="material-icons-round">search</span>
+                                    <input type="text" id="passwordsSearch" placeholder="Поиск по сайту или логину" autocomplete="off">
+                                </div>
+                                <button class="btn-primary ripple" id="addPasswordBtn">
+                                    <span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span>
+                                    Добавить
+                                </button>
+                            </div>
+                            <div class="lib-list" id="passwordsList"></div>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-profiles">
+                        <h1 class="settings-pane-title">Профили</h1>
+                        <div class="settings-card">
+                            <h3>Управление профилями</h3>
+                            <p class="settings-hint">Каждый профиль хранит свои настройки, историю, закладки и пароли.</p>
+                            <div class="profiles-list" id="settingsProfilesList"></div>
+                            <form class="profile-create-form" id="profileCreateForm">
+                                <label for="newProfileName">Имя нового профиля</label>
+                                <input type="text" id="newProfileName" placeholder="Например: Работа, Личный…" maxlength="32" required>
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-primary ripple" id="createProfileBtn">
+                                        <span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span>
+                                        Создать профиль
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    
+                    <section class="settings-pane" id="pane-extensions">
+                        <h1 class="settings-pane-title">Расширения</h1>
+                        <div class="settings-card">
+                            <h3>Дополнения Firefox</h3>
+                            <p class="settings-hint">Вставьте HTTPS-ссылку на страницу дополнения в Firefox Add-ons или прямую ссылку на XPI. Также можно выбрать файл или папку с manifest.json. Electron поддерживает только часть WebExtensions API: дополнения, зависящие от Firefox/Gecko API, могут не работать. Устанавливайте только доверенные расширения.</p>
+                            <form class="extension-link-form" id="extensionLinkForm">
+                                <div class="extension-url-field">
+                                    <input type="text" id="extensionLinkInput" placeholder="addons.mozilla.org/firefox/addon/..." aria-label="Ссылка на расширение" autocomplete="url" spellcheck="false" required>
+                                    <button type="button" class="extension-paste-btn" id="pasteExtensionLinkBtn" title="Вставить из буфера обмена" aria-label="Вставить из буфера обмена">
+                                        <span class="material-icons-round">content_paste</span>
+                                    </button>
+                                </div>
+                                <button type="submit" class="settings-action" id="installExtensionLinkBtn">Установить по ссылке</button>
+                            </form>
+                            <div class="btn-row">
+                                <button class="btn-primary ripple" id="installExtensionBtn">
+                                    <span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span>
+                                    Установить расширение
+                                </button>
+                                <button class="settings-action" id="openAddonCatalogBtn">Каталог Firefox Add-ons</button>
+                            </div>
+                            <p class="settings-hint">Переключатель применяет состояние сразу: выключенное расширение выгружается из текущего профиля и не загружается при следующем запуске.</p>
+                            <p class="settings-hint extension-status" id="extensionsStatus" role="status" aria-live="polite"></p>
+                            <div class="extensions-list" id="extensionsList" aria-label="Установленные расширения"></div>
+                        </div>
+                    </section>
+
+                    <p class="settings-version" id="settingsVersion"></p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-card">
+            <h2>
+                <span class="material-icons-round">manage_accounts</span>
+                Профили
+            </h2>
+            <div class="profiles-list" id="profileModalList"></div>
+            <form class="profile-create-form" id="profileModalCreateForm">
+                <label for="modalNewProfileName">Новый профиль</label>
+                <input type="text" id="modalNewProfileName" placeholder="Имя профиля…" maxlength="32" required>
+                <div class="btn-row">
+                    <button type="button" class="btn-ghost" id="profileModalClose">Закрыть</button>
+                    <button type="submit" class="btn-primary ripple" id="profileModalCreate">
+                        <span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span>
+                        Создать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-card" id="onboardingCard">
+            <div class="onboarding-steps" id="onboardingSteps"></div>
+            <div id="onboardingStepContent"></div>
+        </div>
+    </div>
+
+    <div class="legal-doc-overlay" id="legalDocOverlay" hidden>
+        <div class="legal-doc-card" role="dialog" aria-modal="true" aria-labelledby="legalDocTitle">
+            <div class="legal-doc-header">
+                <h2 id="legalDocTitle">Документ</h2>
+                <button type="button" class="nav-btn" id="legalDocClose" title="Закрыть" aria-label="Закрыть">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <pre class="legal-doc-body" id="legalDocBody"></pre>
+        </div>
+    </div>
+
+    
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+    <div class="password-prompt" id="passwordPrompt" aria-hidden="true">
+        <div class="password-prompt-card">
+            <div class="password-prompt-icon"><span class="material-icons-round">vpn_key</span></div>
+            <div class="password-prompt-body">
+                <div class="password-prompt-title">Сохранить пароль?</div>
+                <div class="password-prompt-meta" id="passwordPromptMeta"></div>
+            </div>
+            <div class="password-prompt-actions">
+                <button class="btn-ghost" id="passwordPromptNever">Никогда</button>
+                <button class="btn-ghost" id="passwordPromptNo">Не сейчас</button>
+                <button class="btn-primary ripple" id="passwordPromptYes">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="library.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+{
+  "name": "swift-browser",
+  "version": "1.0.0",
+  "description": "Swift Browser — быстрый и красивый браузер с поиском DuckDuckGo",
+  "main": "main.js",
+  "author": "creamblyy",
+  "license": "SEE LICENSE IN legal/EULA.txt",
+  "scripts": {
+    "start": "electron .",
+    "predist": "node scripts/make-eula-html.js",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.creamblyy.swiftbrowser",
+    "productName": "Swift Browser",
+    "copyright": "Copyright © 2026 creamblyy",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js",
+      "library.js",
+      "icon.png",
+      "icon.ico",
+      "EULA.txt",
+      "legal/**/*",
+      "fonts/**/*",
+      "assets/search-engines/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "legal",
+        "to": "legal"
+      }
+    ],
+    "afterPack": "./scripts/afterPack.js",
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "license": "legal/EULA.html",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Swift Browser"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "yauzl": "^3.4.0"
+  }
+}
